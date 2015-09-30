@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="sort_order_types">
+        <item>@string/most_popular</item>
+        <item>@string/highest_rated</item>
+    </string-array>
+
+</resources>

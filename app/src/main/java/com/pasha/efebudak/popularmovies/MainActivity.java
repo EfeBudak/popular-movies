@@ -2,12 +2,14 @@ package com.pasha.efebudak.popularmovies;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -57,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("custom-event-name"));
 
-
         startService(
                 NetworkService.newIntent(
                         this,
@@ -86,12 +87,32 @@ public class MainActivity extends AppCompatActivity implements
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.sort_order)
+                    .setItems(R.array.sort_order_types, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int position) {
+
+                            startService(
+                                    NetworkService.newIntent(
+                                            MainActivity.this,
+                                            "https://api.themoviedb.org/3",
+                                            position));
+
+                        }
+                    });
+            builder.show();
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * called when an item of the movie list is clicked
+     * @param position
+     */
     @Override
     public void onItemClicked(int position) {
 
