@@ -23,6 +23,7 @@ public class MovieListFragment extends Fragment {
     public interface MovieListItemListener {
 
         void onItemClicked(int position);
+        void callMovieService();
 
     }
 
@@ -47,6 +48,10 @@ public class MovieListFragment extends Fragment {
 
         if(savedInstanceState != null){
             result = savedInstanceState.getParcelable("result");
+        }
+
+        if(result == null){
+            movieListItemListener.callMovieService();
         }
 
         if (result != null) {

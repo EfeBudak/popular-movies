@@ -27,6 +27,8 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements
         MovieListFragment.MovieListItemListener {
 
+    private static final String TAG_MOVIE_LIST_FRAGMENT = "tagMovieListFragment";
+
     private Result result;
 
     @Bind(R.id.main_frame_layout_container)
@@ -45,11 +47,6 @@ public class MainActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        startService(
-                NetworkService.newIntent(
-                        this,
-                        "https://api.themoviedb.org/3"));
-
         if (savedInstanceState == null) {
 
             addMovieListFragment();
@@ -57,11 +54,46 @@ public class MainActivity extends AppCompatActivity implements
         } else {
 
             result = savedInstanceState.getParcelable("result");
-            if (!getSupportFragmentManager().getFragments().isEmpty()) {
 
-                //addMovieListFragment();
-            }
+        }
 
+    }
+
+    public void callMovieService() {
+
+        if (result == null) {
+
+            startService(
+                    NetworkService.newIntent(
+                            this,
+                            "https://api.themoviedb.org/3"));
+
+            final BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    // Get extra data included in the Intent
+
+                    Bundle bundle = intent.getExtras();
+                    result = bundle.getParcelable("results");
+
+                    if (result == null) {
+                        frameLayoutContainer.setForeground(
+                                getResources().getDrawable(R.drawable.movie_placeholder));
+                    } else {
+                        movieListFragment.updateResult(result);
+                    }
+
+                }
+            };
+
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                    new IntentFilter("custom-event-name"));
+        } else {
+
+            movieListFragment
+                    = (MovieListFragment) getSupportFragmentManager()
+                    .findFragmentByTag(TAG_MOVIE_LIST_FRAGMENT);
+            movieListFragment.updateResult(result);
         }
 
     }
@@ -71,31 +103,10 @@ public class MainActivity extends AppCompatActivity implements
         movieListFragment = MovieListFragment.newInstance();
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-        fragmentTransaction.add(R.id.main_frame_layout_container, movieListFragment);
+        fragmentTransaction.replace(
+                R.id.main_frame_layout_container, movieListFragment, TAG_MOVIE_LIST_FRAGMENT);
 
         fragmentTransaction.commit();
-
-        final BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                // Get extra data included in the Intent
-
-                Bundle bundle = intent.getExtras();
-                result = bundle.getParcelable("results");
-
-                if (result == null) {
-                    frameLayoutContainer.setForeground(
-                            getResources().getDrawable(R.drawable.movie_placeholder));
-                } else {
-                    movieListFragment.updateResult(result);
-                }
-
-            }
-        };
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter("custom-event-name"));
 
     }
 
@@ -161,14 +172,4 @@ public class MainActivity extends AppCompatActivity implements
         outState.putParcelable("result", result);
 
     }
-
-    /*@Override
-    public void onBackPressed() {
-
-        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
-    }*/
 }
