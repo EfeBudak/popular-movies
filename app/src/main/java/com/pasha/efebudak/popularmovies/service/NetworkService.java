@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.pasha.efebudak.popularmovies.model.Result;
 
@@ -70,9 +69,16 @@ public class NetworkService extends IntentService {
                 = new RestAdapter.Builder().setEndpoint(url).build();
         TheMovieDbService theMovieDbService = retrofit.create(TheMovieDbService.class);
 
-        Result resultCall
-                = theMovieDbService.listMovies(
-                findOrderType(orderType), MOVIE_DB_API_KEY);
+        Result resultCall;
+
+        try {
+            resultCall
+                    = theMovieDbService.listMovies(
+                    findOrderType(orderType), MOVIE_DB_API_KEY);
+        } catch (Exception e) {
+            resultCall = null;
+        }
+
 
         sendMessage(resultCall);
 

@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -23,6 +22,7 @@ import com.pasha.efebudak.popularmovies.model.Result;
 import com.pasha.efebudak.popularmovies.service.NetworkService;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements
         MovieListFragment.MovieListItemListener {
@@ -32,17 +32,49 @@ public class MainActivity extends AppCompatActivity implements
     @Bind(R.id.main_frame_layout_container)
     FrameLayout frameLayoutContainer;
 
-    private FragmentManager fragmentManager;
-
     private MovieListFragment movieListFragment;
     private MovieDetailFragment movieDetailFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        startService(
+                NetworkService.newIntent(
+                        this,
+                        "https://api.themoviedb.org/3"));
+
+        if (savedInstanceState == null) {
+
+            addMovieListFragment();
+
+        } else {
+
+            result = savedInstanceState.getParcelable("result");
+            if (!getSupportFragmentManager().getFragments().isEmpty()) {
+
+                //addMovieListFragment();
+            }
+
+        }
+
+    }
+
+    private void addMovieListFragment() {
+
+        movieListFragment = MovieListFragment.newInstance();
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        fragmentTransaction.add(R.id.main_frame_layout_container, movieListFragment);
+
+        fragmentTransaction.commit();
 
         final BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
             @Override
@@ -51,27 +83,19 @@ public class MainActivity extends AppCompatActivity implements
 
                 Bundle bundle = intent.getExtras();
                 result = bundle.getParcelable("results");
-                movieListFragment.updateResult(result);
+
+                if (result == null) {
+                    frameLayoutContainer.setForeground(
+                            getResources().getDrawable(R.drawable.movie_placeholder));
+                } else {
+                    movieListFragment.updateResult(result);
+                }
 
             }
         };
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("custom-event-name"));
-
-        startService(
-                NetworkService.newIntent(
-                        this,
-                        "https://api.themoviedb.org/3"));
-
-        movieListFragment = MovieListFragment.newInstance();
-
-        fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentTransaction.add(R.id.main_frame_layout_container, movieListFragment)
-                .addToBackStack(null);
-        fragmentTransaction.commit();
 
     }
 
@@ -111,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * called when an item of the movie list is clicked
+     *
      * @param position
      */
     @Override
@@ -121,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void openDetailFragment(Movie movie) {
 
-        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
         movieDetailFragment = MovieDetailFragment.newInstance(movie);
         fragmentTransaction.replace(R.id.main_frame_layout_container, movieDetailFragment);
@@ -131,12 +156,19 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("result", result);
+
+    }
+
+    /*@Override
     public void onBackPressed() {
 
-        if (fragmentManager.getBackStackEntryCount() > 0) {
-            fragmentManager.popBackStack();
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
         } else {
             super.onBackPressed();
         }
-    }
+    }*/
 }

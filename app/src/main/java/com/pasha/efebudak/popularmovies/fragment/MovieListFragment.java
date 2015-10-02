@@ -45,6 +45,10 @@ public class MovieListFragment extends Fragment {
         gridViewMovieList = (GridView) view.findViewById(R.id.movie_list_grid_view);
         gridViewMovieList.setNumColumns(Utils.calculateNumberOfColumns(getActivity()));
 
+        if(savedInstanceState != null){
+            result = savedInstanceState.getParcelable("result");
+        }
+
         if (result != null) {
             gridViewMovieList.setAdapter(new MovieListAdapter(getActivity(), result));
         }
@@ -61,6 +65,14 @@ public class MovieListFragment extends Fragment {
                 });
 
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("result", result);
+
     }
 
     @Override
