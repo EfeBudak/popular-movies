@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.pasha.efebudak.popularmovies.BuildConfig;
 import com.pasha.efebudak.popularmovies.model.Result;
 
 import retrofit.RestAdapter;
@@ -20,8 +21,6 @@ public class NetworkService extends IntentService {
     public static final int HIGHEST_RATED = 1;
 
     private static final String DEFAULT_WORKER_THREAD_NAME = "defaultWorkerThreadName";
-    //todo keep the API key at gradle.properties
-    private static final String MOVIE_DB_API_KEY = "962b77a3c4dfa95e0e12b1655fdb620a";
 
     private static final String KEY_URL = "url";
     private static final String KEY_ORDER_TYPE = "orderType";
@@ -72,9 +71,8 @@ public class NetworkService extends IntentService {
         Result resultCall;
 
         try {
-            resultCall
-                    = theMovieDbService.listMovies(
-                    findOrderType(orderType), MOVIE_DB_API_KEY);
+            resultCall = theMovieDbService.listMovies(
+                    findOrderType(orderType), BuildConfig.MOVIE_DB_API_KEY);
         } catch (Exception e) {
             resultCall = null;
         }
