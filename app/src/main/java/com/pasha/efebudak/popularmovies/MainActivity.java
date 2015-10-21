@@ -18,8 +18,10 @@ import android.widget.FrameLayout;
 import com.pasha.efebudak.popularmovies.fragment.MovieDetailFragment;
 import com.pasha.efebudak.popularmovies.fragment.MovieListFragment;
 import com.pasha.efebudak.popularmovies.model.Movie;
+import com.pasha.efebudak.popularmovies.model.MovieVideoResult;
 import com.pasha.efebudak.popularmovies.model.Result;
-import com.pasha.efebudak.popularmovies.service.NetworkService;
+import com.pasha.efebudak.popularmovies.service.MovieListNetworkService;
+import com.pasha.efebudak.popularmovies.service.MovieVideosNetworkService;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,6 +32,23 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG_MOVIE_LIST_FRAGMENT = "tagMovieListFragment";
 
     private Result result;
+
+    final BroadcastReceiver broadcastReceiverVideo = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+
+            Bundle bundle = intent.getExtras();
+            MovieVideoResult movieVideoResult
+                    = bundle.getParcelable("movieVideosResults");
+
+            if (movieVideoResult != null) {
+
+                movieDetailFragment.updateVideoList(movieVideoResult);
+            }
+
+        }
+    };
 
     @Bind(R.id.main_frame_layout_container)
     FrameLayout frameLayoutContainer;
@@ -57,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements
 
         }
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiverVideo,
+                new IntentFilter("movie-videos-results"));
+
     }
 
     public void callMovieService() {
@@ -64,9 +86,8 @@ public class MainActivity extends AppCompatActivity implements
         if (result == null) {
 
             startService(
-                    NetworkService.newIntent(
-                            this,
-                            "https://api.themoviedb.org/3"));
+                    MovieListNetworkService.newIntent(
+                            this));
 
             final BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
                 @Override
@@ -129,9 +150,8 @@ public class MainActivity extends AppCompatActivity implements
                         public void onClick(DialogInterface dialog, int position) {
 
                             startService(
-                                    NetworkService.newIntent(
+                                    MovieListNetworkService.newIntent(
                                             MainActivity.this,
-                                            "https://api.themoviedb.org/3",
                                             position));
 
                         }
@@ -152,7 +172,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onItemClicked(int position) {
 
+        getDetailInfo(result.getMovieArrayList().get(position));
         openDetailFragment(result.getMovieArrayList().get(position));
+    }
+
+    private void getDetailInfo(Movie movie) {
+
+        startService(
+                MovieVideosNetworkService.newIntent(
+                        this,
+                        movie.getId() + ""));
+
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiverVideo);
+        super.onPause();
     }
 
     private void openDetailFragment(Movie movie) {

@@ -21,7 +21,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.NetworkService" />
+        <service android:name=".service.MovieListNetworkService" />
+        <service android:name=".service.MovieVideosNetworkService" />
 
     </application>
 

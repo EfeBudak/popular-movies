@@ -1,16 +1,21 @@
 package com.pasha.efebudak.popularmovies.fragment;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.pasha.efebudak.popularmovies.R;
 import com.pasha.efebudak.popularmovies.model.Movie;
+import com.pasha.efebudak.popularmovies.model.MovieVideoResult;
 import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
@@ -37,6 +42,8 @@ public class MovieDetailFragment extends Fragment {
     TextView textViewVoteAverage;
     @Bind(R.id.movie_detail_text_view_synopsis)
     TextView textViewSynopsis;
+    @Bind(R.id.movie_detail_linear_layout_videos)
+    LinearLayout linearLayoutVideos;
 
     private Movie movie;
 
@@ -79,6 +86,47 @@ public class MovieDetailFragment extends Fragment {
         textViewReleaseDate.setText(movie.getReleaseDate());
         textViewVoteAverage.setText(movie.getVoteAverage() + "");
         textViewSynopsis.setText(movie.getOverview());
+
+    }
+
+    public void updateVideoList(final MovieVideoResult movieVideoResult) {
+
+        for (int i = 0; i < movieVideoResult.getMovieVideoArrayList().size(); i++) {
+
+            final String movieName = movieVideoResult.getMovieVideoArrayList().get(i).getName();
+            final String movieKey = movieVideoResult.getMovieVideoArrayList().get(i).getKey();
+
+            TextView textView = new TextView(getActivity());
+            textView.setText(movieName);
+            textView.setLayoutParams(
+                    new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    final Intent intent
+                            = new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://youtu.be/" + movieKey));
+                    final Intent browserIntentChooser = Intent.createChooser(intent, "Choooose please: ");
+
+                    startActivity(browserIntentChooser);
+
+                }
+            });
+
+            try {
+
+                linearLayoutVideos.addView(textView);
+            }catch (Exception e){
+                Log.d("Add textview exception", e.getMessage());
+            }
+
+        }
+
 
     }
 }

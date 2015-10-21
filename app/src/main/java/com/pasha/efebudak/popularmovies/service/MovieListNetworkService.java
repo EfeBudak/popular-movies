@@ -15,32 +15,28 @@ import retrofit.RestAdapter;
 /**
  * Created by efebudak on 23/09/15.
  */
-public class NetworkService extends IntentService {
+public class MovieListNetworkService extends IntentService {
 
     public static final int MOST_POPULAR = 0;
     public static final int HIGHEST_RATED = 1;
 
     private static final String DEFAULT_WORKER_THREAD_NAME = "defaultWorkerThreadName";
 
-    private static final String KEY_URL = "url";
     private static final String KEY_ORDER_TYPE = "orderType";
 
-    public static Intent newIntent(Context context, String url) {
+    public static Intent newIntent(Context context) {
 
-
-        return newIntent(context, url, MOST_POPULAR);
+        return newIntent(context, MOST_POPULAR);
 
     }
 
     public static Intent newIntent(
             Context context,
-            String url,
             int orderType) {
 
-        final Intent intent = new Intent(context, NetworkService.class);
+        final Intent intent = new Intent(context, MovieListNetworkService.class);
         final Bundle bundle = new Bundle();
 
-        bundle.putString(KEY_URL, url);
         bundle.putInt(KEY_ORDER_TYPE, orderType);
 
         intent.putExtras(bundle);
@@ -49,11 +45,11 @@ public class NetworkService extends IntentService {
 
     }
 
-    public NetworkService() {
+    public MovieListNetworkService() {
         super(DEFAULT_WORKER_THREAD_NAME);
     }
 
-    public NetworkService(String workerThreadName) {
+    public MovieListNetworkService(String workerThreadName) {
         super(workerThreadName);
     }
 
@@ -61,11 +57,10 @@ public class NetworkService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         final Bundle bundle = intent.getExtras();
-        final String url = bundle.getString(KEY_URL);
         final int orderType = bundle.getInt(KEY_ORDER_TYPE);
 
         RestAdapter retrofit
-                = new RestAdapter.Builder().setEndpoint(url).build();
+                = new RestAdapter.Builder().setEndpoint(BuildConfig.BUILD_URL).build();
         TheMovieDbService theMovieDbService = retrofit.create(TheMovieDbService.class);
 
         Result resultCall;
@@ -76,7 +71,6 @@ public class NetworkService extends IntentService {
         } catch (Exception e) {
             resultCall = null;
         }
-
 
         sendMessage(resultCall);
 
