@@ -141,7 +141,7 @@ public class MovieDetailFragment extends Fragment {
             final String reviewAuthor = movieReviewResult.getMovieReviewArrayList().get(i).getAuthor();
             final String reviewContent = movieReviewResult.getMovieReviewArrayList().get(i).getContent();
 
-            reviewString = reviewAuthor + "\n" + reviewContent + "\n";
+            reviewString = reviewString + reviewAuthor + "\n" + reviewContent + "\n";
 
         }
 
