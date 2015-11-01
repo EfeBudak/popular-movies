@@ -23,6 +23,7 @@
 
         <service android:name=".service.MovieListNetworkService" />
         <service android:name=".service.MovieVideosNetworkService" />
+        <service android:name=".service.MovieReviewsNetworkService" />
 
     </application>
 

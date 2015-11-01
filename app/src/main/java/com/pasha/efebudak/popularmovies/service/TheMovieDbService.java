@@ -1,5 +1,6 @@
 package com.pasha.efebudak.popularmovies.service;
 
+import com.pasha.efebudak.popularmovies.model.MovieReviewResult;
 import com.pasha.efebudak.popularmovies.model.MovieVideoResult;
 import com.pasha.efebudak.popularmovies.model.Result;
 
@@ -19,6 +20,6 @@ public interface TheMovieDbService {
     MovieVideoResult listMovieTrailers(@Path("id") String id, @Query("api_key") String apiKey);
 
     @GET("/movie/{id}/reviews")
-    Result listMovieReviews(@Path("id") String id, @Query("api_key") String apiKey);
+    MovieReviewResult listMovieReviews(@Path("id") String id, @Query("api_key") String apiKey);
 
 }

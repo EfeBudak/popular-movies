@@ -18,9 +18,11 @@ import android.widget.FrameLayout;
 import com.pasha.efebudak.popularmovies.fragment.MovieDetailFragment;
 import com.pasha.efebudak.popularmovies.fragment.MovieListFragment;
 import com.pasha.efebudak.popularmovies.model.Movie;
+import com.pasha.efebudak.popularmovies.model.MovieReviewResult;
 import com.pasha.efebudak.popularmovies.model.MovieVideoResult;
 import com.pasha.efebudak.popularmovies.model.Result;
 import com.pasha.efebudak.popularmovies.service.MovieListNetworkService;
+import com.pasha.efebudak.popularmovies.service.MovieReviewsNetworkService;
 import com.pasha.efebudak.popularmovies.service.MovieVideosNetworkService;
 
 import butterknife.Bind;
@@ -45,6 +47,23 @@ public class MainActivity extends AppCompatActivity implements
             if (movieVideoResult != null) {
 
                 movieDetailFragment.updateVideoList(movieVideoResult);
+            }
+
+        }
+    };
+
+    final BroadcastReceiver broadcastReceiverReview = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+
+            Bundle bundle = intent.getExtras();
+            MovieReviewResult movieReviewResult
+                    = bundle.getParcelable("movieReviewResults");
+
+            if (movieReviewResult != null) {
+
+                movieDetailFragment.updateReviewList(movieReviewResult);
             }
 
         }
@@ -78,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiverVideo,
                 new IntentFilter("movie-videos-results"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiverReview,
+                new IntentFilter("movie-review-results"));
 
     }
 
@@ -180,6 +201,10 @@ public class MainActivity extends AppCompatActivity implements
 
         startService(
                 MovieVideosNetworkService.newIntent(
+                        this,
+                        movie.getId() + ""));
+        startService(
+                MovieReviewsNetworkService.newIntent(
                         this,
                         movie.getId() + ""));
 

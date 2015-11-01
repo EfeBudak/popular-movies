@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.pasha.efebudak.popularmovies.R;
 import com.pasha.efebudak.popularmovies.model.Movie;
+import com.pasha.efebudak.popularmovies.model.MovieReviewResult;
 import com.pasha.efebudak.popularmovies.model.MovieVideoResult;
 import com.squareup.picasso.Picasso;
 
@@ -44,6 +45,8 @@ public class MovieDetailFragment extends Fragment {
     TextView textViewSynopsis;
     @Bind(R.id.movie_detail_linear_layout_videos)
     LinearLayout linearLayoutVideos;
+    @Bind(R.id.movie_detail_text_view_reviews)
+    TextView textViewReviews;
 
     private Movie movie;
 
@@ -127,6 +130,23 @@ public class MovieDetailFragment extends Fragment {
 
         }
 
+    }
+
+    public void updateReviewList(final MovieReviewResult movieReviewResult) {
+
+        String reviewString = "";
+
+        for (int i = 0; i < movieReviewResult.getMovieReviewArrayList().size(); i++) {
+
+            final String reviewAuthor = movieReviewResult.getMovieReviewArrayList().get(i).getAuthor();
+            final String reviewContent = movieReviewResult.getMovieReviewArrayList().get(i).getContent();
+
+            reviewString = reviewAuthor + "\n" + reviewContent + "\n";
+
+        }
+
+        textViewReviews.setText(reviewString);
 
     }
+
 }
